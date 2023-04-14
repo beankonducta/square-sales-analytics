@@ -7,7 +7,7 @@
         class="date-container"
       >
         <label>Location</label>
-        <select v-model="location[index]" @change="fetchSales(index)">
+        <select v-model="location[index]" @change="fetchSales(index)" class="full-input">
           <option
             v-for="location of locations"
             :key="location.id"
@@ -30,31 +30,43 @@
             wrapper-class="input"
           ></datepicker>
         </div>
-        <div v-if="sales[index] != null">
-          <h1
+        <div v-if="sales[index] != null" class="sales">
+          <h3
             v-if="!loading[index]"
-            :style="{ color: fontColor(index, 'total_sales') }"
           >
             Total Sales: ${{ sales[index].totals.total }}
-          </h1>
+          </h3>
           <br />
-          <h1
+          <h3
             v-if="!loading[index]"
-            :style="{ color: fontColor(index, 'total_tip') }"
           >
             Total Tips: ${{ sales[index].totals.tip }}
-          </h1>
-          <h1
+          </h3>
+          <h3
             v-if="!loading[index]"
-            :style="{ color: fontColor(index, 'sale_count') }"
           >
             Sale Count: {{ sales[index].salesCount }}
-          </h1>
+          </h3>
+          <h3
+            v-if="!loading[index]"
+          >
+            Average Sale: ${{ Math.round(sales[index].totals.total / sales[index].salesCount) }}
+          </h3>
+          <h3
+            v-if="!loading[index]"
+          >
+            Hourly Tips: ${{ Math.round(sales[index].totals.tip / sales[index].openHours / sales[index].days) }}
+          </h3>
+          <h3
+            v-if="!loading[index]"
+          >
+            Per Person: ${{ Math.round(sales[index].totals.tip / sales[index].openHours / sales[index].days / 2) }}
+          </h3>
         </div>
-        <h1 v-if="loading[index]">Loading..</h1>
-        <h1>
+        <h3 v-if="loading[index]">Loading..</h3>
+        <h3>
           {{ error[index] }}
-        </h1>
+        </h3>
       </div>
     </div>
   </div>
@@ -127,31 +139,8 @@ export default {
       }
       this.fetchSales(index);
     },
-    fontColor(index, type) {
-      let index1 = index == 0 ? 0 : 1;
-      let index2 = index == 1 ? 0 : 1;
-      switch (type) {
-        case "total_sales":
-          if (this.sales[index1] == null || this.sales[index2] == null)
-            return "white";
-          if (
-            +this.sales[index1].totals.total > +this.sales[index2].totals.total
-          )
-            return "green";
-          else return "red";
-        case "total_tip":
-          if (this.sales[index1] == null || this.sales[index2] == null)
-            return "white";
-          if (+this.sales[index1].totals.tip > +this.sales[index2].totals.tip)
-            return "green";
-          else return "red";
-          case "sale_count":
-          if (this.sales[index1] == null || this.sales[index2] == null)
-            return "white";
-          if (+this.sales[index1].salesCount > +this.sales[index2].salesCount)
-            return "green";
-          else return "red";
-      }
+    fontColor() {
+      return "white"
     },
   },
   mounted() {
@@ -195,6 +184,17 @@ label {
   width: 100%;
   align-content: center;
   text-align: center;
+}
+
+.sales {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-input {
+  width: 90%;
+  margin-right: 5%;
+  margin-left: 5%;
 }
 </style>
 

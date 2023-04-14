@@ -41,8 +41,8 @@ exports.timecards = functions.https.onRequest(async (req, res) => {
 
 // Returns an object of sales data, based on provided date range and location
 // might run into issues without pagination!
-exports.sales = functions.https.onRequest(async (req, res) => {
-    let salesData = { salesCount: 0, openHours: 0, totals: { total: 0, tip: 0 }, byHour: [] }
+exports.sales = functions.runWith({timeoutSeconds: 540, memory: '8GB'}).https.onRequest(async (req, res) => {
+    let salesData = { days: 0, salesCount: 0, openHours: 0, totals: { total: 0, tip: 0 }, byHour: [] }
     for (let i = 0; i < 23; i++)
         salesData.byHour.push({ hour: i, total: 0, tip: 0 })
     const { start, end, locationId } = req.query
@@ -82,6 +82,7 @@ exports.sales = functions.https.onRequest(async (req, res) => {
         })
         cursor = response.result.cursor
     } while (cursor)
+    salesData.days = Math.round((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
     salesData.byHour.forEach(hour => {
         if (hour.total > 0)
             salesData.openHours++;
